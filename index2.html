@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>canvas组件绘制</title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="js/canvas.js"></script>
+</head>
+<body>
+<textarea id="source"></textarea>
+<button id="button">绘制</button>
+<div id="scrollText">
+
+</div>
+<script>
+var scrollbarWidth = 20,
+    scrollbarMinLength = 40,
+    fontSize = 20,
+    canvas = document.createElement('canvas')
+    lines = [];
+
+canvas.width = 800;
+canvas.height = 600;
+$("#scrollText").append(canvas);
+var container = new CvsContainer(canvas.getContext("2d"), 0, 0, canvas.width, canvas.height);
+container.onDraw = function() {
+    var ctx = this.getContext();
+    ctx.fillStyle = "black";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+};
+container.key = "根节点";
+var textComponent = new CvsComponent(container, 5, 5, canvas.width - 10, canvas.height - 10);
+var scrollHeight = canvas.height,
+    scrollWidth = canvas.width;
+textComponent.onDraw = function() {
+    var ctx      = this.getContext();
+    ctx.fillStyle = "black";
+    ctx.font = fontSize + "px courier";
+    for (var i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], 5, fontSize*(i+1)+5);
+        scrollWidth = Math.max(scrollWidth, ctx.measureText(lines[i]).width + 10);
+    }
+};
+textComponent.key = "文本节点";
+var vTrack;
+$("#button").click(function() {
+    var text = $("#source").val();
+    lines = text.split("\n");
+    scrollHeight = 10 + fontSize * lines.length;
+    if (scrollHeight > canvas.height) {
+        if (vTrack) container.removeChild(vTrack);
+        vTrack = new CvsContainer(container, canvas.width - scrollbarWidth - 1, 1, scrollbarWidth, canvas.height - 2);
+        vTrack.key = "vTrack";
+        vTrack.onDraw = function() {
+            var ctx = this.getContext();
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(0, 0, this.width, this.height);
+        };
+        var scrollbarHeight = scrollbarMinLength;
+        if (scrollHeight - canvas.height < canvas.height - scrollbarMinLength) {
+            scrollbarHeight = 2*canvas.height - scrollHeight;
+        }
+        var vSeek = new CvsComponent(vTrack, 2, 0, vTrack.width-4, scrollbarHeight);
+        vSeek.key = "vSeek";
+        vSeek.onDraw = function() {
+            var ctx = this.getContext();
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, 0, this.width, this.height);
+        };
+    }
+    container.draw();
+    (function() {
+        var _isDrag = false,
+            _initTop = 0,
+            _maxTop = vTrack.height - vSeek.height,
+            _scrollTop = 0,
+            _scrollHeight = scrollHeight,
+            _startY = 0,
+            _lastY = 0;
+        vSeek.on = function(event) {
+            if (event.type != "mousemove") console.log(event.pageY);
+            if (event.type = "mousedown") {
+                if (!_isDrag) {
+                    _isDrag = true;
+                    _startY = _lastY = event.pageY;
+                    console.log("start: " + event.pageY);
+                } else if (Math.abs(event.pageY - _lastY) > 5) {
+                    vSeek.translate(0, event.pageY - _lastY);
+                    console.log("translate: " + (event.pageY - _lastY));
+                    _lastY = event.pageY;
+                }
+            } else if (event.type = "mousemove" && _isDrag) {
+                vSeek.translate(0, event.pageY - _lastY);
+                _lastY = event.pageY;
+                console.log("move: " + event.pageY);
+            } else if (event.type = "mouseup" && _isDrag) {
+                _isDrag = false,
+                _initTop = 0;
+                _maxTop = vTrack.height - vSeek.height;
+                _scrollTop = 0;
+                _scrollHeight = scrollHeight;
+                _startY = 0;
+                _lastY = 0;
+
+            }
+        };
+    })();
+});
+$(canvas).on("mousedown mousemove mouseup", function(e) {
+    container.trigger(e, e.offsetX, e.offsetY);
+});
+
+</script>
+</body>
+</html>
