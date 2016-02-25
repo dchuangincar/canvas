@@ -50,9 +50,9 @@ $("#button").click(function() {
     }
 });
 scrollbarTop = 1;
-var isDrag = false, lastY = 0;
+var isDrag = false, lastY = 0, seekTop = 0, seekLeft = canvasWidth - scrollbarWidth -1+5;
 $(canvas).on("mousedown mousemove mouseup", function(e) {
-    if (e.type != "mousemove") console.log(e);
+    if (e.type != "mousemove") console.log(e, e.pageX, e.pageY);
     if (e.type == "mousedown") {
         isDrag = true;
         lastY = e.pageY;
@@ -65,21 +65,17 @@ $(canvas).on("mousedown mousemove mouseup", function(e) {
             ctx.fillStyle = "#CCCCCC";
             ctx.fillRect(canvasWidth - scrollbarWidth -1+5, 1+thisY-lastY, scrollbarWidth - 10, scrollbarHeight);
 
-            ctx.clearRect(5, 5, canvasWidth - 10, canvasHeight - 10);
+            ctx.clearRect(5, 5, canvasWidth - 10 - scrollbarWidth, canvasHeight - 10);
             var lines = $("#source").val().split("\n");
             ctx.translate(0, lastY-thisY);
             ctx.fillStyle = "#000000";
             for (var ii = 0; ii < lines.length; ii++) {
                 ctx.fillText(lines[ii], 5, fontSize*(ii+1)+5);
             }
-
-//            var _cvs = document.createElement("canvas");
-//            var _ctx = _cvs.getContext("2d");
-//            _ctx.translate(0, lastY-thisY);
-//            for (var i = 0; i < lines.length; i++) {
-//                _ctx.fillText(lines[i], 5, fontSize*(i+1)+5);
-//            }
-//            ctx.drawImage(_cvs, 5, 5, canvasWidth - 10, canvasHeight - 10);
+            ctx.translate(0, thisY-lastY);
+            ctx.clearRect(1, 1, canvasWidth - scrollbarWidth - 2, 4);
+            ctx.clearRect(1, canvasHeight-5, canvasWidth - scrollbarWidth - 2, 4);
+            ctx.clearRect(canvasWidth - scrollbarWidth - 5, 1, 4, canvasHeight - 2);
             ctx.restore();
         }
     } else if (e.type == "mouseup" && isDrag) {
