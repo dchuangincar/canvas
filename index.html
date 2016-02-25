@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML Canvas</title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<textarea id="source"></textarea>
+<button id="button">绘制</button>
+<div id="scrollText">
+
+</div>
+</body>
+<script>
+var canvasWidth = 800,
+    canvasHeight = 600,
+    scrollbarWidth = 20,
+    scrollbarMinLength = 40;
+var canvas = document.createElement('canvas');
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
+var ctx = canvas.getContext("2d");
+var fontSize = 20;
+ctx.font = fontSize + "px courier";
+ctx.fillStyle = "black";
+ctx.lineWidth = 1;
+$("#button").click(function() {
+    var text = $("#source").val();
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
+    var lines = text.split("\n"),
+        scrollWidth = canvasWidth,
+        scrollHeight = 10 + fontSize * lines.length;
+    for (var i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], 5, fontSize*(i+1)+5);
+        scrollWidth = Math.max(scrollWidth, ctx.measureText(lines[i]).width + 10);
+    }
+    if (scrollHeight > canvasHeight) {
+        scrollWidth += scrollbarWidth;
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(canvasWidth - scrollbarWidth - 1, 1, scrollbarWidth, canvasHeight - 2);
+        var scrollbarHeight = scrollbarMinLength;
+        if (scrollHeight - canvasHeight < canvasHeight - scrollbarMinLength) {
+            scrollbarHeight = 2*canvasHeight - scrollHeight;
+        }
+        ctx.fillStyle = "#CCCCCC";
+        ctx.fillRect(canvasWidth - scrollbarWidth -1+5, 1, scrollbarWidth - 10, scrollbarHeight);
+    }
+});
+$(canvas).on("mousedown mousemove mouseup", function(e) {
+    if (e.type != "mousemove") console.log(e);
+});
+$("#scrollText").append(canvas);
+</script>
+</html>

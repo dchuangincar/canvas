@@ -1,0 +1,11 @@
+*.iml
+*.ipr
+*.iws
+*.log
+*.log.*
+
+.idea/
+.DS_Store
+
+node_modules/
+
