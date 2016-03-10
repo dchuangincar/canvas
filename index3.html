@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<canvas width="900" height="600" id="myCanvas"></canvas>
+<script>
+    var myCanvas = document.getElementById("myCanvas");
+    var context = myCanvas.getContext('2d');
+    context.fillStyle = 'rgb(255,0,0)';
+    context.fillRect(0,0,900,600);
+    context.fillStyle = 'rgb(255,255,0)';
+    draw5(context, 150, 150, 90, 0);
+
+    context.translate(150, 150);
+    context.rotate(-Math.PI/4);
+    for (var i = 0; i < 4; i++) {
+        context.rotate(Math.PI/10);
+        draw5(context, 220, 0, 25);
+    }
+
+    function draw5(context, rx, ry, r) {
+        context.beginPath();
+        context.lineTo(rx, ry-r);
+        context.lineTo(rx + r*Math.sin(Math.PI/5), ry + r*Math.cos(Math.PI/5));
+        context.lineTo(rx - r*Math.cos(Math.PI/10), ry - r*Math.sin(Math.PI/10));
+        context.lineTo(rx + r*Math.cos(Math.PI/10), ry - r*Math.sin(Math.PI/10));
+        context.lineTo(rx - r*Math.sin(Math.PI/5), ry+ r*Math.cos(Math.PI/5));
+        context.lineTo(rx,ry-r);
+        context.closePath();
+        context.fill();
+    }
+</script>
+</body>
+</html>

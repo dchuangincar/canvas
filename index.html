@@ -34,7 +34,7 @@ $("#button").click(function() {
         scrollWidth = canvasWidth,
         scrollHeight = 10 + fontSize * lines.length;
     for (var i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], 5, fontSize*(i+1)+5);
+        ctx.fillText(lines[i], 5, 2*fontSize*(i+1)+5);
         scrollWidth = Math.max(scrollWidth, ctx.measureText(lines[i]).width + 10);
     }
     if (scrollHeight > canvasHeight) {
@@ -50,12 +50,16 @@ $("#button").click(function() {
     }
 });
 scrollbarTop = 1;
-var isDrag = false, lastY = 0, seekTop = 0, seekLeft = canvasWidth - scrollbarWidth -1+5;
+var isDrag = false, lastY = 0, seekTop = 1, seekLeft = canvasWidth - scrollbarWidth -1+5;
 $(canvas).on("mousedown mousemove mouseup", function(e) {
     if (e.type != "mousemove") console.log(e, e.pageX, e.pageY);
     if (e.type == "mousedown") {
-        isDrag = true;
-        lastY = e.pageY;
+        var x = e.offsetX, y = e.offsetY;
+        //if (x >= seekLeft && x <= seekLeft + scrollbarWidth
+        //    && y >= seekTop && y <= seekTop + scrollbarHeight) {
+            isDrag = true;
+            lastY = e.pageY;
+        //}
     } else if (e.type == "mousemove" && isDrag) {
         var thisY = e.pageY;
         if (thisY != lastY) {
@@ -63,14 +67,15 @@ $(canvas).on("mousedown mousemove mouseup", function(e) {
             ctx.fillStyle = "#000000";
             ctx.fillRect(canvasWidth - scrollbarWidth - 1, 1, scrollbarWidth, canvasHeight - 2);
             ctx.fillStyle = "#CCCCCC";
-            ctx.fillRect(canvasWidth - scrollbarWidth -1+5, 1+thisY-lastY, scrollbarWidth - 10, scrollbarHeight);
+            ctx.fillRect(canvasWidth - scrollbarWidth -1+5, seekTop+thisY-lastY, scrollbarWidth - 10, scrollbarHeight);
+            //seekTop = 1+thisY-lastY;
 
             ctx.clearRect(5, 5, canvasWidth - 10 - scrollbarWidth, canvasHeight - 10);
             var lines = $("#source").val().split("\n");
             ctx.translate(0, lastY-thisY);
             ctx.fillStyle = "#000000";
             for (var ii = 0; ii < lines.length; ii++) {
-                ctx.fillText(lines[ii], 5, fontSize*(ii+1)+5);
+                ctx.fillText(lines[ii], 5, 2*fontSize*(ii+1)+5);
             }
             ctx.translate(0, thisY-lastY);
             ctx.clearRect(1, 1, canvasWidth - scrollbarWidth - 2, 4);
